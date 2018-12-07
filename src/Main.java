@@ -1,8 +1,5 @@
 public class Main {
 
-    String sendMessage;
-    String recievedMessage;
-
     public static void main(String[] args) {
         SymbolsCode symbolsCode = SymbolsCode.get();
         Subscriber keyGenerator = new Subscriber();

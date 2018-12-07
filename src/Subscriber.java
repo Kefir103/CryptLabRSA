@@ -10,15 +10,15 @@ public class Subscriber {
     StringBuilder messageCodes = new StringBuilder();
     StringBuilder decodedMessage = new StringBuilder();
 
-    List<Long> listOfEncodedBlocks = new ArrayList<>();
-    List<Long> listOfDecodedBlocks = new ArrayList<>();
+    List<Integer> listOfEncodedBlocks = new ArrayList<>();
+    List<Integer> listOfDecodedBlocks = new ArrayList<>();
 
     public int getP() {
         return P;
     }
 
     public void setP() {
-        P = random.nextInt(63); // 4 байтное число
+        P = random.nextInt(255); // 1 байтное число
         for (int i = 2; i <= P / 2; i++){
             int tmp = P % i;
             if (tmp == 0){
@@ -32,7 +32,7 @@ public class Subscriber {
     }
 
     public void setQ() {
-        Q = random.nextInt(63); // 4 байтное число
+        Q = random.nextInt(255); // 1 байтное число
 
         for (int i = 2; i <= Q / 2; i++){
             int tmp = Q % i;
@@ -64,7 +64,7 @@ public class Subscriber {
 
     public void setD(int f) {
 
-        d = random.nextInt(63); // 4 байтное число
+        d = random.nextInt(255); // 1 байтное число
 
         if ((d < f) && (f % d != 0)){
             for (int i = 2; i <= d / 2; i++){
@@ -89,21 +89,31 @@ public class Subscriber {
 
     void send(String msg, Map<Character, Integer> mapOfCharCodes){
         for (int i = 0; i < msg.length(); i++){
-            double codeChar = mapOfCharCodes.get(msg.charAt(i));
-            listOfEncodedBlocks.add((long) Math.pow(codeChar, d) % N);
+            int codeChar = mapOfCharCodes.get(msg.charAt(i));
+            int rest = 1;
+            for (int j = 0; j < d; j++){
+                rest *= codeChar;
+                rest %= N;
+            }
+            listOfEncodedBlocks.add(rest);
             encodedMessage.append(listOfEncodedBlocks.get(i));
         }
     }
 
-    void recieve(List<Long> listOfBlocks, Map mapOfCharCodes){
+    void recieve(List<Integer> listOfBlocks, Map mapOfCharCodes){
         ArrayList<Character> alOfChars = new ArrayList<>(mapOfCharCodes.keySet());
         ArrayList<Integer> alOfCodes = new ArrayList<>(mapOfCharCodes.values());
 
-        for (long block: listOfBlocks){
-            listOfDecodedBlocks.add((long)Math.pow((double) block, (double) e) % N);
+        for (int block: listOfBlocks){
+            int rest = 1;
+            for (int j = 0; j < e; j++){
+                rest *= block;
+                rest %= N;
+            }
+            listOfDecodedBlocks.add(rest);
         }
 
-        for (long block: listOfDecodedBlocks){
+        for (int block: listOfDecodedBlocks){
             for (int i = 0; i < alOfCodes.size(); i++){
                 if (alOfCodes.get(i) == block){
                     decodedMessage.append(alOfChars.get(i));
@@ -124,8 +134,8 @@ public class Subscriber {
         return messageCodes;
     }
 
-    public List<Long> getListOfEncodedBlocks() {
+    public List<Integer> getListOfEncodedBlocks() {
         return listOfEncodedBlocks;
     }
-    
+
 }
