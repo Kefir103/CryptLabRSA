@@ -1,10 +1,11 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Subscriber {
-
+    String name;
     int P, Q, f, d;
     long e, N;
-    private Random random = new Random();
 
     StringBuilder encodedMessage = new StringBuilder();
     StringBuilder messageCodes = new StringBuilder();
@@ -13,78 +14,27 @@ public class Subscriber {
     List<Integer> listOfEncodedBlocks = new ArrayList<>();
     List<Integer> listOfDecodedBlocks = new ArrayList<>();
 
-    public int getP() {
-        return P;
-    }
-
-    public void setP() {
-        P = random.nextInt(255); // 1 байтное число
-        for (int i = 2; i <= P / 2; i++){
-            int tmp = P % i;
-            if (tmp == 0){
-                setP();
-            }
-        }
-    }
-
-    public int getQ() {
-        return Q;
-    }
-
-    public void setQ() {
-        Q = random.nextInt(255); // 1 байтное число
-
-        for (int i = 2; i <= Q / 2; i++){
-            int tmp = Q % i;
-            if (tmp == 0){
-                setQ();
-            }
-        }
-    }
-
-    public long getN() {
-        return N;
-    }
-
-    public void setN(int p, int q) {
-        N = p * q;
-    }
-
-    public int getF() {
-        return f;
-    }
-
-    public void setF(int p, int q) {
-        f = (p - 1) * (q - 1);
-    }
-
-    public int getD() {
-        return d;
-    }
-
-    public void setD(int f) {
-
-        d = random.nextInt(255); // 1 байтное число
-
-        if ((d < f) && (f % d != 0)){
-            for (int i = 2; i <= d / 2; i++){
-                int tmp = d % i;
-                if (tmp == 0){
-                    setD(f);
-                }
-            }
-        }
+    Subscriber(String name){
+        KeyGenerator keyGenerator = KeyGenerator.get();
+        this.P = keyGenerator.getP();
+        this.Q = keyGenerator.getQ();
+        this.f = keyGenerator.getF();
+        this.N = keyGenerator.getN();
+        this.d = keyGenerator.getD();
+        this.e = setE(this.d, this.f);
+        this.name = name;
     }
 
     public long getE() {
         return e;
     }
 
-    public void setE(int d, int f) {
+    private long setE(int d, int f) {
         e = 0;
         while (e * d % f != 1){
             e++;
         }
+        return e;
     }
 
     void send(String msg, Map<Character, Integer> mapOfCharCodes){
@@ -98,6 +48,10 @@ public class Subscriber {
             listOfEncodedBlocks.add(rest);
             encodedMessage.append(listOfEncodedBlocks.get(i));
         }
+
+        System.out.println(getName() + "'s message is: " + msg);
+        System.out.println(getName() + "'s encodedMessage is: " + getEncodedMessage());
+
     }
 
     void recieve(List<Integer> listOfBlocks, Map mapOfCharCodes){
@@ -120,6 +74,8 @@ public class Subscriber {
                 }
             }
         }
+
+        System.out.println(getName() + " recieved : " + getDecodedMessage());
     }
 
     public StringBuilder getEncodedMessage() {
@@ -138,4 +94,27 @@ public class Subscriber {
         return listOfEncodedBlocks;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getP() {
+        return P;
+    }
+
+    public int getQ() {
+        return Q;
+    }
+
+    public int getF() {
+        return f;
+    }
+
+    public int getD() {
+        return d;
+    }
+
+    public long getN() {
+        return N;
+    }
 }
